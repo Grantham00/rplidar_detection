@@ -1,2 +1,6 @@
 # RPLidar_Detection
-Object detection with 2D LiDAR
+
+Undergraduate Research project by Alexa Culp and Anthony Grantham
+PI: Dr. Kevin McFall
+
+Please see the Wiki for documentation and tutorials
