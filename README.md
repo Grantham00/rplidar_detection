@@ -1,10 +1,10 @@
 # RPLIDAR_Detection
 
-Undergraduate Research project by Alexa Culp and Anthony Grantham.
+Undergraduate Research project by Alexa Culp and Anthony Grantham. Principal Investigator: Dr. Kevin McFall
 
-PI: Dr. Kevin McFall
 
 This script takes a lidar scan, segments it, and tracks lines. It also attempts localization via a particle filter.
+
 
 Please see the Wiki for documentation and tutorials
 
