@@ -7,6 +7,7 @@ This script takes a lidar scan, segments it, and tracks lines. It also attempts 
 
 
 Please see the wiki for documentation and tutorials
+
 https://github.com/Grantham00/rplidar_detection/wiki
 
 This script works with the RPLIDAR and ROS. 
