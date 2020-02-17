@@ -1,4 +1,4 @@
-## RPLIDAR_Detection
+## rplidar_detection
 
 Kennesaw State University Undergraduate Research project by Alexa Culp and Anthony Grantham. Principal Investigator: Dr. Kevin McFall
 
