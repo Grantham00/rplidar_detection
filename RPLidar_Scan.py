@@ -1,4 +1,3 @@
-
 from rplidar import RPLidar
 import matplotlib.pyplot as plot
 import numpy as np
@@ -102,8 +101,10 @@ while True:
                     'r')
 
     plot.draw()
+
     #Print time it took for this loop to complete
     print("Time: ", time.time() - start_time, "seconds")
+    
     #pause matplotlib, gives it time to draw and allows "animation"
     plot.pause(0.001)
 
