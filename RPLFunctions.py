@@ -5,19 +5,20 @@ from sensor_msgs.msg import LaserScan
 import rospy
 import subprocess
 
-#function returns scanvals - the variable holding formatted scan data
+#function returns scanvals - the variable holding formatted scan data [intensities angles ranges]
 def getScan():
-    #waits for a pubished message from the /scan topic - (topic, data type, queue size)
+    #waits for a pubished message from the /scan topic - (topic, data type, timeout (sec))
     scan = rospy.wait_for_message('/scan', LaserScan, 15) 
 
     #yields range data (float32[]) -- ranges is an array which gives the distance measured for each angle bin
-*   #Ranges are returned in meters. Convert to mm 
+    #Ranges are returned in meters -- convert to mm 
     ranges = np.array(scan.ranges)*1000
 
     #np.array(dataype?, copy(bool): True - object is copied/False - copy only made if array returns copy, subok(bool): True - subclasses will be passed through/False - forced to be base-class array, ndmn(int): specifies minimum number of dimensions resulting array should have)
+    #[:] -- colon returns all indicies in the array
     ranges = np.array(ranges[:], copy=False, subok=True, ndmin=2).T
 
-    #yields the intensity data (float32[])
+    #yields the intensity data (float32[]) -- intensities of 0 return no value, as the intensity increases the quality of the reading improves
     intensities = np.array(scan.intensities)
     intensities = np.array(intensities[:], copy=False, subok=True, ndmin=2).T
     
@@ -29,14 +30,16 @@ def getScan():
     angleincr = np.rad2deg(scan.angle_increment)
     angles = []
    
-    #since the LaserScan message only reports list of ranges and the angle increment, we need to calculate each angle and match it to its corresponding range value
+    #the LaserScan message reports a list of ranges and the angle increment -- calculates the individual angles corresponding to their range values
     for i in range(len(scan.ranges)):
         angles.append(anglemin + angleincr*i)
     angles = np.array(angles[:], copy=False, subok=True, ndmin=2).T
     
-*   #sets up the scanvals variable
+    #sets up the scanvals variable as a numpy array with [intensities angles ranges]
     scanvals = np.concatenate((intensities,angles,ranges),axis=1)
+    #deletes rows where intesnity == 0 
     scanvals = np.delete(scanvals, np.where(scanvals[:,0]==0),axis=0)
+    #inserts a fourth column of zeros for later use
     scanvals = np.insert(scanvals, 3, 0, axis=1)
     return scanvals
 
@@ -45,7 +48,7 @@ def start():
     roslaunch_command = 'roslaunch rplidar_ros rplidar.launch'.split()
     return subprocess.Popen(roslaunch_command)
 
-#kills the program
+#kills a subprocess
 def kill(process):
     process.kill()
 
@@ -55,6 +58,7 @@ def scan2coord():
     scanvals = getScan()
 
     #takes data from scanvals converts to radians and assigns it as either the x or y value respectively
+    #[:,1] -- returns an array of each value in all rows of column 1
     x = (scanvals[:,2])*(np.sin(np.deg2rad(scanvals[:,1])))
     y = (scanvals[:,2])*(np.cos(np.deg2rad(scanvals[:,1])))
 
@@ -69,7 +73,7 @@ def listener():
 def segment(scanvals, segthreshold):
     i=0 #incremental number
     iterseg = 0 #segment number
-*   #Compare the range (column 2 in scanvals) from one row to the next. If the difference is greater than segthreshold, increment the segment number. If not, assign it the same segment number.
+   #Compare the range (column 2 in scanvals) from one row to the next. If the difference is greater than segthreshold, increment the segment number. If not, assign it the same segment number.
     for row in scanvals:
         if abs(scanvals[i][2] - scanvals[i-1][2]) > segthreshold:
             iterseg+=1
@@ -214,8 +218,10 @@ def local2global(RPLpose, LocalLM1):
 #Given a known global robot pose and a known global landmark, calculate the position of the landmark from the robot's perspective - The inverse of local2global
 def global2local(RPLpose, GlobalLM):
     import numpy as np
-    Xl=((-RPLpose[0]+GlobalLM[0])*np.cos(np.deg2rad(RPLpose[2])))+((-RPLpose[1]+GlobalLM[1])*np.sin(np.deg2rad(RPLpose[2]))) #Point conversion to local x coordinate
-    Yl=((-RPLpose[0]+GlobalLM[0])*-np.sin(np.deg2rad(RPLpose[2])))+((-RPLpose[1]+GlobalLM[1])*np.cos(np.deg2rad(RPLpose[2]))) #Point conversion to local y coordinate
+    #Point conversion to local x coordinate
+    Xl=((-RPLpose[0]+GlobalLM[0])*np.cos(np.deg2rad(RPLpose[2])))+((-RPLpose[1]+GlobalLM[1])*np.sin(np.deg2rad(RPLpose[2]))) 
+    #Point conversion to local y coordinate
+    Yl=((-RPLpose[0]+GlobalLM[0])*-np.sin(np.deg2rad(RPLpose[2])))+((-RPLpose[1]+GlobalLM[1])*np.cos(np.deg2rad(RPLpose[2]))) 
     return ([Xl,Yl,0])
 
 #Given an object's position, twist, velocity and a timestep, calculate the new position. Works with an array of n length
@@ -230,6 +236,7 @@ def newPose(RPLpose,dtheta,v,dt):
     x_P=Length*np.sin(np.deg2rad(RPLpose[:,2])+DeltaTheta/2)+RPLpose[:,0]
     y_P=Length*np.cos(np.deg2rad(RPLpose[:,2])+DeltaTheta/2)+RPLpose[:,1]
     
+    #np.column_stack((1D array, 1D array...)) returns an array composed of a column of each array passed.
     modPart = np.column_stack((x_P,y_P,(RPLpose[:,2]+DeltaTheta),RPLpose[:,3],RPLpose[:,4],RPLpose[:,5]))
     return modPart
 
