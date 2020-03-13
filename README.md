@@ -16,4 +16,14 @@ https://github.com/robopeak/rplidar_ros
 
 http://wiki.ros.org/
 
-Hi.
+## Download
+
+To download, open your terminal to wherever you want the download location to be and run
+
+<code>https://github.com/Grantham00/rplidar_detection.git</code>
+
+## Running
+
+To run, open your terminal to the location of the .py files and run
+
+<code>python RPLFunctions.py</code>
