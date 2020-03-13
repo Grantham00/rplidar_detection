@@ -86,6 +86,22 @@ def segment(scanvals, segthreshold):
             break
     return scanvals
 
+def splitSeg(scanvals, x, y):
+    i=0 #incremental number
+    iterseg = 0 #segment number
+    splitvals = []
+    coords = np.column_stack((x,y))
+    dcoords = np.zeros((len(coords),2))
+    count= 0
+   #Compare the range (column 2 in scanvals) from one row to the next. If the difference is greater than segthreshold, increment the segment number. If not, assign it the same segment number.        
+    for i in range(len(scanvals)):
+       dcoords[i] = abs(abs(coords[i])-abs(coords[i-1]))
+    for i in range(len(dcoords)):
+        if (((dcoords[i-1][0]>dcoords[i-1][1]) and (dcoords[i][1]>dcoords[i][0])) or ((dcoords[i-1][1]>dcoords[i-1][0]) and (dcoords[i][0]>dcoords[i][1]))):
+            iterseg += 1
+        scanvals[i][3] = iterseg
+    return scanvals
+
 # Returns rotation matrix for angle of rotation rot
 def getRotMat(rot):
     return np.array(((np.cos(rot),-1*np.sin(rot)),(np.sin(rot),np.cos(rot))))

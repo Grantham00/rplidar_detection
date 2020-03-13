@@ -1,4 +1,4 @@
-from rplidar import RPLidar
+1from rplidar import RPLidar
 import matplotlib.pyplot as plot
 import numpy as np
 import time
@@ -10,9 +10,15 @@ import rospy
 from matplotlib.animation import FuncAnimation
 import matplotlib.animation as animation
 import matplotlib
+import argparse
 
-#initializes matplotlib in interactive mode
 plot.ion()
+
+parser = argparse.ArgumentParser(description="run the lidar")
+parser.add_argument('--s', default='150')
+args = parser.parse_args()
+segthreshold = int(args.s)
+print(segthreshold)
 
 #Definte Landmark Positions
 cornerA=[0,0]
@@ -26,7 +32,8 @@ RPLpose=[20,20,45]
 #Distance between points to separate segments (mm)
 segthreshold = 150
 
-
+#list of colors to draw segments with
+colors = ['b','g','c','m','y','k','w']
 
 
 #Import published topics from ros and check if /scan exists. If not, start it
@@ -44,22 +51,19 @@ while True:
     #Get time at beginning of sript
     start_time = time.time()
     
-    #clear the matplotlib figure
     plot.clf()
     
     #Import Scans from ROS topic
     scanvals = rpl.getScan()
     
-    #segment scan points based on segthreshold
-    scanvals = rpl.segment(scanvals, segthreshold)
     
-    #calculate x and y coordinates given the radial coordinates
+    
     x = (scanvals[:,2])*(np.cos(np.deg2rad(scanvals[:,1])))
     y = (scanvals[:,2])*(np.sin(np.deg2rad(scanvals[:,1])))
     
-    #list of colors to draw segments with
-    colors = ['b','g','c','m','y','k','w']
-
+    #segment scan points based on segthreshold
+#    scanvals = rpl.segment(scanvals, segthreshold)
+    scanvals = rpl.splitSeg(scanvals, x, y)
     #Plot the lidar scan one segment at a time, alternating colors
     j=0
     for i in range(int(scanvals[-1][3])):
@@ -67,7 +71,6 @@ while True:
         scat = plot.scatter((x[(scanvals[:,3]==i)]), (y[(scanvals[:,3]==i)]), marker='*', c=colors[j])
         plot.axis('equal')
         j+=1
-        #Modulo (%) operator returns division remainder. When j reaches the lenth of colors (7), it resets to 0
         j%=len(colors)
         
     
@@ -76,28 +79,22 @@ while True:
     linecount = 0
     alldata = np.empty([0,3])    
     for k in range(int(scanvals[-1][3])):
-        #checks if there are at least 10 scanval rows that match k (effectively ignoring segments of < 10 values)
         if np.size(np.where(scanvals[:,3]==k)) > 10:
             xV=x[scanvals[:,3]==k]
             yV=y[scanvals[:,3]==k]
-            #np.full_like creates an array with shape xV, filling value k)
             seg = np.full_like(xV, k)
             data=np.column_stack((xV, yV, seg))
             line = rpl.getLine(data)[1]
-            #creates a np array of values line with shape 1,2
             line = np.reshape(line,(1,2))
             line = np.column_stack((line, np.full_like(range(len(line)),seg[0])))
             lines = np.vstack((lines,line))
-            #add data values along axis=0 (rows) to alldata array
             alldata = np.append(alldata, data, axis=0)
             
     #Take the average of similar lines
     i=0
-    #np.unique returns the unique values in the 2nd column of lines (throwing out duplicates)
     segs = np.unique(lines[:,2])   
     avglines = np.empty([0,3])
     for i in range(len((segs))):
-        #take average of lines within each segment number
         avg = np.average(lines[lines[:,2]==segs[i]], axis=0)
         avglines = np.append(avglines, np.reshape(avg, (1,3)),axis=0)
     
