@@ -1,4 +1,4 @@
-1from rplidar import RPLidar
+from rplidar import RPLidar
 import matplotlib.pyplot as plot
 import numpy as np
 import time
