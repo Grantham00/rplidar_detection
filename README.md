@@ -1,5 +1,6 @@
 ## rplidar_detection
-[plot](https://thumbs.gfycat.com/FrankPowerlessCrocodileskink-small.gif)
+
+![plot](https://thumbs.gfycat.com/FrankPowerlessCrocodileskink-small.gif)
 
 Kennesaw State University Undergraduate Research project by Alexa Culp and Anthony Grantham. Principal Investigator: Dr. Kevin McFall
 
