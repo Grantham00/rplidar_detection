@@ -9,7 +9,7 @@ This script takes a lidar scan, segments it, and fits lines.
 
 
 
-#Please see the wiki for documentation and tutorials
+##Please see the wiki for documentation and tutorials
 
 https://github.com/Grantham00/rplidar_detection/wiki
 
