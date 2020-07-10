@@ -5,7 +5,7 @@
 Kennesaw State University Undergraduate Research project by Alexa Culp and Anthony Grantham. Principal Investigator: Dr. Kevin McFall
 
 
-This script takes a lidar scan, segments it, and fits lines.
+This script takes a lidar scan, segments it, and fits lines to the segments.
 
 
 
