@@ -62,8 +62,8 @@ while True:
     y = (scanvals[:,2])*(np.sin(np.deg2rad(scanvals[:,1])))
     
     #segment scan points based on segthreshold
-#    scanvals = rpl.segment(scanvals, segthreshold)
-    scanvals = rpl.splitSeg(scanvals, x, y)
+    scanvals = rpl.segment(scanvals, segthreshold)
+    #scanvals = rpl.splitSeg(scanvals, x, y)
     #Plot the lidar scan one segment at a time, alternating colors
     j=0
     for i in range(int(scanvals[-1][3])):
